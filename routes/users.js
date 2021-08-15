@@ -8,15 +8,20 @@ const mongoose = require('mongoose');
 router.route('/').get((req, res) => {
     //execute find all users and return response as json if no error
     User.find()
-        .then(users=> res.json(users))
+        .then(users=> {
+            out = [];
+            //keep only user name and email from the users array
+            users.forEach(user=>out.push({email:user.email, name:user.name}));
+            res.json(out);
+        })
         .catch(err=> res.status(400).json('Error: ' + err));
 });
 
 router.route('/').post((req, res) => {
     //get name and email from payload
-    ({name, email} = req.body);
+    ({name, email, password} = req.body);
     //create new user object
-    const newUser = new User({"name": name, "email": email});
+    const newUser = new User({"name": name, "email": email, "password": password});
     //save new user object
     newUser.save()
         .then(() => res.json('user added successfully'))

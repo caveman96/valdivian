@@ -1,6 +1,7 @@
 //loading express and cors
 const express = require('express');
 const cors = require('cors');
+const auth = require('./services/auth');
 
 //this will load environment variables into the process variable
 require('dotenv').config();
@@ -8,10 +9,12 @@ require('dotenv').config();
 //creating the express app
 const app = express();
 const port = process.env.PORT || 5000;
-
-app.use(cors());
 //since we will be sending and recieving data in json format
 app.use(express.json());
+
+app.use(cors());
+//Use auth method as the middleware to do authentication
+app.use(auth.doAuth);
 
 //loading mongoose and the mongoDB uri
 const mongoose = require('mongoose');
@@ -30,6 +33,9 @@ const productRouter = require('./routes/products');
 //use the routes to redirect these endpoints to the respective files
 app.use('/products', productRouter);
 app.use('/users', userRouter);
+
+//register auth endpoint
+app.get("/token", auth.createToken);
 
 app.get("/test", (req,res)=>{
     res.send("hello world");
